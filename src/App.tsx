@@ -48,6 +48,9 @@ const App: React.FC = () => (
         <Route exact path="/add-recipe">
           <AddRecipe />
         </Route>
+        <Route exact path="/edit-recipe/:id">
+          <AddRecipe />
+        </Route>
         <Route exact path="/recipe/:id">
           <ViewRecipe />
         </Route>
