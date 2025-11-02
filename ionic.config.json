@@ -1,0 +1,7 @@
+{
+  "name": "cookbook-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
