@@ -6,14 +6,11 @@ import {
   IonTitle,
   IonToolbar,
   IonSearchbar,
-  IonRefresher,
-  IonRefresherContent,
   IonGrid,
   IonRow,
   IonCol,
-  RefresherEventDetail,
 } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import RecipeCard from '../components/RecipeCard';
 import { Recipe } from '../types/Recipe';
 import { recipeService } from '../services/recipeService';
@@ -23,10 +20,17 @@ const Recipes: React.FC = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const history = useHistory();
+  const location = useLocation();
 
   useEffect(() => {
     loadRecipes();
   }, []);
+
+  useEffect(() => {
+    if (location.pathname === '/tabs/recipes') {
+      loadRecipes();
+    }
+  }, [location.pathname]);
 
   const loadRecipes = () => {
     const allRecipes = recipeService.getAllRecipes();
@@ -52,11 +56,6 @@ const Recipes: React.FC = () => {
     history.push(`/recipe/${id}`);
   };
 
-  const handleRefresh = (event: CustomEvent<RefresherEventDetail>) => {
-    loadRecipes();
-    event.detail.complete();
-  };
-
   return (
     <IonPage>
       <IonHeader>
@@ -73,10 +72,6 @@ const Recipes: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent />
-        </IonRefresher>
-
         {recipes.length === 0 ? (
           <div className="empty-state">
             <p>No recipes found. Add your first recipe!</p>

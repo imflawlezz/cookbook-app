@@ -8,11 +8,8 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonRefresher,
-  IonRefresherContent,
-  RefresherEventDetail,
 } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import RecipeCard from '../components/RecipeCard';
 import { Recipe } from '../types/Recipe';
 import { recipeService } from '../services/recipeService';
@@ -21,10 +18,17 @@ import './Favorites.css';
 const Favorites: React.FC = () => {
   const [favorites, setFavorites] = useState<Recipe[]>([]);
   const history = useHistory();
+  const location = useLocation();
 
   useEffect(() => {
     loadFavorites();
   }, []);
+
+  useEffect(() => {
+    if (location.pathname === '/tabs/favorites') {
+      loadFavorites();
+    }
+  }, [location.pathname]);
 
   const loadFavorites = () => {
     const favRecipes = recipeService.getFavorites();
@@ -40,11 +44,6 @@ const Favorites: React.FC = () => {
     history.push(`/recipe/${id}`);
   };
 
-  const handleRefresh = (event: CustomEvent<RefresherEventDetail>) => {
-    loadFavorites();
-    event.detail.complete();
-  };
-
   return (
     <IonPage>
       <IonHeader>
@@ -53,10 +52,6 @@ const Favorites: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent />
-        </IonRefresher>
-
         {favorites.length === 0 ? (
           <div className="empty-state">
             <p>No favorite recipes yet. Add some by tapping the heart icon!</p>
