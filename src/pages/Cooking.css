@@ -1,0 +1,87 @@
+.card-header-with-badge {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.checked-item {
+  text-decoration: line-through;
+  color: var(--ion-color-medium);
+}
+
+.steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cooking-step {
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--ion-color-light);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cooking-step:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cooking-step.completed {
+  background: var(--ion-color-success-tint);
+  opacity: 0.7;
+}
+
+.step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.step-number-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.step-number {
+  font-weight: 600;
+  color: var(--ion-color-primary);
+  font-size: 16px;
+}
+
+.step-check-icon {
+  font-size: 24px;
+}
+
+.step-text {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.cooking-step.completed .step-text {
+  text-decoration: line-through;
+}
+
+.timer-button {
+  margin-top: 8px;
+}
+
+.completion-message {
+  padding: 16px;
+  text-align: center;
+}
+
+.completion-message h2 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+}
+
+.completion-message p {
+  margin: 0;
+  font-size: 16px;
+}
