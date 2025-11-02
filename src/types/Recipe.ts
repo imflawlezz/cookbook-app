@@ -5,15 +5,7 @@ export interface Recipe {
   instructions: string;
   imageUrl: string;
   isFavorite: boolean;
-  steps?: RecipeStep[];
   createdAt: number;
-}
-
-export interface RecipeStep {
-  stepNumber: number;
-  instruction: string;
-  timerMinutes?: number;
-  completed?: boolean;
 }
 
 export interface ShoppingItem {
