@@ -1,4 +1,5 @@
 import { Recipe } from '../types/Recipe';
+import { sampleRecipes } from '../data/sampleRecipes';
 
 const RECIPES_KEY = 'cookbook_recipes';
 
@@ -61,5 +62,19 @@ export const recipeService = {
     return recipes.filter(recipe => 
       recipe.name.toLowerCase().includes(lowerQuery)
     );
+  },
+
+  loadSampleRecipes(): void {
+    const existingRecipes = this.getAllRecipes();
+    const baseTime = Date.now();
+    const newRecipes: Recipe[] = sampleRecipes.map((recipe, index) => ({
+      ...recipe,
+      id: (baseTime + index).toString() + Math.random().toString(36).substr(2, 9),
+      createdAt: baseTime + index,
+      isFavorite: false,
+    }));
+
+    const allRecipes = [...existingRecipes, ...newRecipes];
+    localStorage.setItem(RECIPES_KEY, JSON.stringify(allRecipes));
   },
 };
