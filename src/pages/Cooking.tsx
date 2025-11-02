@@ -20,7 +20,7 @@ import {
   IonBadge,
 } from '@ionic/react';
 import { useParams, useHistory } from 'react-router-dom';
-import { timer, checkmarkCircle, checkmarkCircleOutline, play, pause, stop } from 'ionicons/icons';
+import { timer, checkmarkCircle, checkmarkCircleOutline, play, pause, stop, refresh } from 'ionicons/icons';
 import { Recipe, ShoppingItem } from '../types/Recipe';
 import { recipeService } from '../services/recipeService';
 import './Cooking.css';
@@ -29,6 +29,7 @@ interface CookingStep {
   number: number;
   text: string;
   completed: boolean;
+  timerHours?: number;
   timerMinutes?: number;
   timerSeconds?: number;
   timerActive?: boolean;
@@ -54,18 +55,33 @@ const Cooking: React.FC = () => {
     };
   }, [id]);
 
-  // Parse timestamp from text (e.g., "(3:00)" -> { minutes: 3, seconds: 0 })
-  const parseTimestamp = (text: string): { minutes: number; seconds: number } | null => {
-    const timestampRegex = /\(?(\d{1,2}):(\d{2})\)?/;
-    const match = text.match(timestampRegex);
+  // Parse timestamp from text
+  const parseTimestamp = (text: string): { hours?: number; minutes: number; seconds: number } | null => {
+    // Try to match H:MM:SS format first (hours:minutes:seconds)
+    const hoursRegex = /\(?(\d{1,2}):(\d{2}):(\d{2})\)?/;
+    const hoursMatch = text.match(hoursRegex);
     
-    if (match) {
-      const minutes = parseInt(match[1], 10);
-      const seconds = parseInt(match[2], 10);
+    if (hoursMatch) {
+      const hours = parseInt(hoursMatch[1], 10);
+      const minutes = parseInt(hoursMatch[2], 10);
+      const seconds = parseInt(hoursMatch[3], 10);
+      if (hours >= 0 && minutes >= 0 && minutes <= 59 && seconds >= 0 && seconds <= 59) {
+        return { hours, minutes, seconds };
+      }
+    }
+    
+    // Try to match M:SS format (minutes:seconds)
+    const minutesRegex = /\(?(\d{1,2}):(\d{2})\)?/;
+    const minutesMatch = text.match(minutesRegex);
+    
+    if (minutesMatch) {
+      const minutes = parseInt(minutesMatch[1], 10);
+      const seconds = parseInt(minutesMatch[2], 10);
       if (minutes >= 0 && minutes <= 59 && seconds >= 0 && seconds <= 59) {
         return { minutes, seconds };
       }
     }
+    
     return null;
   };
 
@@ -94,9 +110,13 @@ const Cooking: React.FC = () => {
         };
         
         if (timestamp) {
+          if (timestamp.hours !== undefined) {
+            stepData.timerHours = timestamp.hours;
+          }
           stepData.timerMinutes = timestamp.minutes;
           stepData.timerSeconds = timestamp.seconds;
-          stepData.timerRemaining = timestamp.minutes * 60 + timestamp.seconds;
+          const totalSeconds = (timestamp.hours || 0) * 3600 + timestamp.minutes * 60 + timestamp.seconds;
+          stepData.timerRemaining = totalSeconds;
         }
         
         return stepData;
@@ -220,7 +240,8 @@ const Cooking: React.FC = () => {
     setSteps(prev => 
       prev.map(step => {
         if (step.number === stepNumber && step.timerMinutes !== undefined && step.timerSeconds !== undefined) {
-          const resetTime = step.timerMinutes * 60 + step.timerSeconds;
+          const hours = step.timerHours || 0;
+          const resetTime = hours * 3600 + step.timerMinutes * 60 + step.timerSeconds;
           timerRemainingRefs.current[stepNumber] = resetTime;
           return {
             ...step,
@@ -233,17 +254,40 @@ const Cooking: React.FC = () => {
     );
   };
 
+  const restartTimer = (stepNumber: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSteps(prev => {
+      return prev.map(step => {
+        if (step.number === stepNumber && step.timerMinutes !== undefined && step.timerSeconds !== undefined) {
+          const hours = step.timerHours || 0;
+          const resetTime = hours * 3600 + step.timerMinutes * 60 + step.timerSeconds;
+          timerRemainingRefs.current[stepNumber] = resetTime;
+          return {
+            ...step,
+            timerActive: false,
+            timerRemaining: resetTime,
+          };
+        }
+        return step;
+      });
+    });
+  };
+
   const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
+    
+    if (hours > 0) {
+      return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   const allIngredientsChecked = shoppingList.every(item => item.checked);
   const completedSteps = steps.filter(step => step.completed).length;
   const totalSteps = steps.length;
-  
-  // Find the current step (first incomplete step)
+
   const currentStep = steps.find(step => !step.completed);
   const currentStepNumber = currentStep?.number;
 
@@ -362,7 +406,19 @@ const Cooking: React.FC = () => {
                         )}
                       </div>
                       {step.timerRemaining === 0 && step.timerActive === false && (
-                        <div className="timer-notification">⏰ Timer finished!</div>
+                        <>
+                          <div className="timer-notification">Timer finished!</div>
+                          <div className="timer-controls">
+                            <IonButton
+                              size="small"
+                              color="primary"
+                              onClick={(e) => restartTimer(step.number, e)}
+                            >
+                              <IonIcon icon={refresh} slot="start" />
+                              Restart
+                            </IonButton>
+                          </div>
+                        </>
                       )}
                     </div>
                   )}
