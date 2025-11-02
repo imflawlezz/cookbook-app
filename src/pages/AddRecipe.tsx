@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -13,19 +13,42 @@ import {
   IonToast,
   IonCard,
   IonCardContent,
+  IonButtons,
+  IonBackButton,
+  IonPopover,
+  IonIcon,
 } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
+import { ellipsisVertical, library } from 'ionicons/icons';
 import { recipeService } from '../services/recipeService';
 import './AddRecipe.css';
 
 const AddRecipe: React.FC = () => {
+  const { id } = useParams<{ id?: string }>();
+  const isEditMode = !!id;
   const [name, setName] = useState('');
   const [ingredients, setIngredients] = useState('');
   const [instructions, setInstructions] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [showPopover, setShowPopover] = useState(false);
+  const [popoverEvent, setPopoverEvent] = useState<Event | undefined>(undefined);
   const history = useHistory();
+
+  useEffect(() => {
+    if (isEditMode && id) {
+      const recipe = recipeService.getRecipeById(id);
+      if (recipe) {
+        setName(recipe.name);
+        setIngredients(recipe.ingredients);
+        setInstructions(recipe.instructions);
+        setImageUrl(recipe.imageUrl);
+      } else {
+        history.push('/tabs/recipes');
+      }
+    }
+  }, [id, isEditMode, history]);
 
   const validateForm = (): boolean => {
     if (!name.trim()) {
@@ -49,27 +72,72 @@ const AddRecipe: React.FC = () => {
   const handleSubmit = () => {
     if (!validateForm()) return;
 
-    recipeService.addRecipe({
-      name: name.trim(),
-      ingredients: ingredients.trim(),
-      instructions: instructions.trim(),
-      imageUrl: imageUrl.trim() || 'https://via.placeholder.com/400x300?text=Recipe',
-      isFavorite: false,
-    });
+    if (isEditMode && id) {
+      recipeService.updateRecipe(id, {
+        name: name.trim(),
+        ingredients: ingredients.trim(),
+        instructions: instructions.trim(),
+        imageUrl: imageUrl.trim() || 'https://via.placeholder.com/400x300?text=Recipe',
+      });
+      setToastMessage('Recipe updated successfully!');
+    } else {
+      recipeService.addRecipe({
+        name: name.trim(),
+        ingredients: ingredients.trim(),
+        instructions: instructions.trim(),
+        imageUrl: imageUrl.trim() || 'https://via.placeholder.com/400x300?text=Recipe',
+        isFavorite: false,
+      });
+      setToastMessage('Recipe added successfully!');
+      
+      // Clear fields after successful creation
+      setName('');
+      setIngredients('');
+      setInstructions('');
+      setImageUrl('');
+    }
 
-    setToastMessage('Recipe added successfully!');
     setShowToast(true);
 
     setTimeout(() => {
-      history.push('/tabs/recipes');
+      if (isEditMode) {
+        history.push(`/recipe/${id}`);
+      } else {
+        history.push('/tabs/recipes');
+      }
     }, 1000);
+  };
+
+  const handleLoadSampleRecipes = () => {
+    recipeService.loadSampleRecipes();
+    setShowPopover(false);
+    setToastMessage('Sample recipes loaded successfully!');
+    setShowToast(true);
+    setTimeout(() => {
+      history.push('/tabs/recipes');
+    }, 1500);
+  };
+
+  const handleMenuClick = (e: React.MouseEvent) => {
+    setPopoverEvent(e.nativeEvent);
+    setShowPopover(true);
   };
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Add Recipe</IonTitle>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref={isEditMode ? `/recipe/${id}` : '/tabs/recipes'} />
+          </IonButtons>
+          <IonTitle>{isEditMode ? 'Edit Recipe' : 'Add Recipe'}</IonTitle>
+          {!isEditMode && (
+            <IonButtons slot="end">
+              <IonButton onClick={handleMenuClick}>
+                <IonIcon icon={ellipsisVertical} />
+              </IonButton>
+            </IonButtons>
+          )}
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="add-recipe-content">
@@ -119,11 +187,24 @@ const AddRecipe: React.FC = () => {
 
             <div className="button-container">
               <IonButton expand="block" onClick={handleSubmit} color="primary">
-                Add Recipe
+                {isEditMode ? 'Update Recipe' : 'Add Recipe'}
               </IonButton>
             </div>
           </IonCardContent>
         </IonCard>
+
+        <IonPopover
+          isOpen={showPopover}
+          event={popoverEvent}
+          onDidDismiss={() => setShowPopover(false)}
+        >
+          <IonContent className="ion-padding">
+            <IonItem button detail={false} onClick={handleLoadSampleRecipes}>
+              <IonIcon icon={library} slot="start" />
+              <IonLabel>Load Sample Recipes</IonLabel>
+            </IonItem>
+          </IonContent>
+        </IonPopover>
 
         <IonToast
           isOpen={showToast}
