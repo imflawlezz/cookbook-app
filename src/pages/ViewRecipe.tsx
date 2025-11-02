@@ -54,6 +54,10 @@ const ViewRecipe: React.FC = () => {
     history.push(`/cooking/${id}`);
   };
 
+  const handleEdit = () => {
+    history.push(`/edit-recipe/${id}`);
+  };
+
   if (!recipe) {
     return null;
   }
@@ -123,6 +127,11 @@ const ViewRecipe: React.FC = () => {
           isOpen={showActionSheet}
           onDidDismiss={() => setShowActionSheet(false)}
           buttons={[
+            {
+              text: 'Edit',
+              icon: create,
+              handler: handleEdit,
+            },
             {
               text: 'Delete',
               role: 'destructive',
