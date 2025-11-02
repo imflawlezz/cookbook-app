@@ -360,7 +360,7 @@ const Cooking: React.FC = () => {
                       <IonIcon 
                         icon={step.completed ? checkmarkCircle : checkmarkCircleOutline}
                         className="step-check-icon"
-                        color={step.completed ? 'success' : 'medium'}
+                        color={step.completed ? 'light' : 'medium'}
                       />
                     </div>
                   </div>
@@ -430,9 +430,9 @@ const Cooking: React.FC = () => {
 
         {completedSteps === totalSteps && totalSteps > 0 && (
           <div className="completion-message">
-            <IonCard color="success">
+            <IonCard color="primary">
               <IonCardContent>
-                <h2>🎉 Recipe Complete!</h2>
+                <h2>Recipe Complete!</h2>
                 <p>Enjoy your {recipe.name}!</p>
               </IonCardContent>
             </IonCard>
