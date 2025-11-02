@@ -67,6 +67,66 @@
   text-decoration: line-through;
 }
 
+.timer-container {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--ion-color-light-shade);
+  border: 1px solid var(--ion-color-medium-tint);
+}
+
+.timer-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  justify-content: center;
+}
+
+.timer-icon {
+  font-size: 24px;
+  color: var(--ion-color-primary);
+}
+
+.timer-time {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--ion-color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-time.timer-finished {
+  color: var(--ion-color-danger);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.timer-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.timer-notification {
+  margin-top: 8px;
+  text-align: center;
+  color: var(--ion-color-light);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px;
+  background: var(--ion-color-success-tint);
+  border-radius: 4px;
+}
+
 .timer-button {
   margin-top: 8px;
 }
