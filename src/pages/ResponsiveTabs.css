@@ -1,0 +1,45 @@
+ion-menu {
+    --width: 260px;
+}
+
+.menu-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    gap: 10px;
+}
+
+.menu-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+}
+
+.menu-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.menu-active {
+    --background: rgba(223, 124, 42, 0.2);
+    --color: var(--ion-color-primary);
+    font-weight: 600;
+}
+
+.menu-active ion-icon {
+    color: var(--ion-color-primary);
+}
+
+.tab-active {
+    color: var(--ion-color-primary);
+}
+
+.tab-active ion-icon {
+    color: var(--ion-color-primary);
+}
+
+@media (min-width: 1024px) {
+    .tabbar-desktop-hidden {
+        display: none !important;
+    }
+}
