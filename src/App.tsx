@@ -29,7 +29,7 @@ const App: React.FC = () => (
         <Route path="/tabs">
           <ResponsiveTabs />
         </Route>
-        <Route exact path="/add-recipe">
+        <Route exact path="/add">
           <AddRecipe />
         </Route>
         <Route exact path="/edit-recipe/:id">
